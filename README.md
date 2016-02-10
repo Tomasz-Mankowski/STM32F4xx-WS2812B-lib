@@ -3,7 +3,7 @@
 ## Description 
 
 STM32F4xx-WS2812B-lib is a very simple to use library which handles WS2812B programmable LEDs using STM32F4xx.
-Whole library is intend to a as simple as possible to use. It requires only one command for initialization
+Whole library is intend as simple as possible to use. It requires only one command for initialization
 and includes only one command for particular LED settings. 
 
 ## How it works?
