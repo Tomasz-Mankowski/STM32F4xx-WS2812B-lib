@@ -24,7 +24,6 @@ Provide longest strip length in *ws2812b_conf.h*
 ```
 here you cal also change an output port for you WS2812B strip. Initialize and use:
 ```
-#include "stm32f4xx.h"
 #include "ws2812b.h"
 
 int main(void)
@@ -46,6 +45,11 @@ int main(void)
 void WS2812B_SetRGB(uint8_t ChannelNumber, uint16_t LEDNumber, uint8_t R, uint8_t G, uint8_t B);
 ```
 which is pretty much self-explanatory.
+
+## Dependencies
+
+- CMSIS DSP Library v1.4.4
+- STM32F4xx_DSP_StdPeriph_Lib_V1.6.0
 
 ## License
 

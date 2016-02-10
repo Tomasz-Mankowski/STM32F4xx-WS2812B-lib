@@ -7,10 +7,10 @@
 
 #include "ws2812b.h"
 
-static void GPIO_Led_Seg(void);
-static void DMA_Transmit_Burst(void);
-static void TIM_Transmit_Burst(void);
-static void TIM_LED_Refresh(void);
+static void WS2812B_GPIO_Led_Seg(void);
+static void WS2812B_DMA_Transmit_Burst(void);
+static void WS2812B_TIM_Transmit_Burst(void);
+static void WS2812B_TIM_LED_Refresh(void);
 
 static GPIO_InitTypeDef GPIO_InitStructure;
 static DMA_InitTypeDef DMA_InitStructure;
@@ -31,26 +31,26 @@ void WS2812B_Init(void)
 		}
 	}
 
-	GPIO_Led_Seg();
-	DMA_Transmit_Burst();
-	TIM_Transmit_Burst();
-	TIM_LED_Refresh();
+	WS2812B_GPIO_Led_Seg();
+	WS2812B_DMA_Transmit_Burst();
+	WS2812B_TIM_Transmit_Burst();
+	WS2812B_TIM_LED_Refresh();
 }
 
-void WS2812B_SetRGB(uint8_t LineNumber, uint16_t LEDNumber, uint8_t R, uint8_t G, uint8_t B)
+void WS2812B_SetRGB(uint8_t ChannelNumber, uint16_t LEDNumber, uint8_t R, uint8_t G, uint8_t B)
 {
 	uint8_t* LED_OutputBuffer_Pointer = &LED_OutputBuffer[LEDNumber * 24 *3];
 
 	uint8_t i;
 	for(i=0; i<8; i++)
 	{
-		*(LED_OutputBuffer_Pointer +          i * 3 + 1) ^= ((*(LED_OutputBuffer_Pointer +          i * 3 + 1) >> LineNumber) & (1 << 0)) != ((G >> i) & (1 << 0))?(1 << LineNumber):0x00;
-		*(LED_OutputBuffer_Pointer + 8  * 3 + i * 3 + 1) ^= ((*(LED_OutputBuffer_Pointer + 8  * 3 + i * 3 + 1) >> LineNumber) & (1 << 0)) != ((R >> i) & (1 << 0))?(1 << LineNumber):0x00;
-		*(LED_OutputBuffer_Pointer + 16 * 3 + i * 3 + 1) ^= ((*(LED_OutputBuffer_Pointer + 16 * 3 + i * 3 + 1) >> LineNumber) & (1 << 0)) != ((B >> i) & (1 << 0))?(1 << LineNumber):0x00;
+		*(LED_OutputBuffer_Pointer +          i * 3 + 1) ^= ((*(LED_OutputBuffer_Pointer +          i * 3 + 1) >> ChannelNumber) & (1 << 0)) != ((G >> i) & (1 << 0))?(1 << ChannelNumber):0x00;
+		*(LED_OutputBuffer_Pointer + 8  * 3 + i * 3 + 1) ^= ((*(LED_OutputBuffer_Pointer + 8  * 3 + i * 3 + 1) >> ChannelNumber) & (1 << 0)) != ((R >> i) & (1 << 0))?(1 << ChannelNumber):0x00;
+		*(LED_OutputBuffer_Pointer + 16 * 3 + i * 3 + 1) ^= ((*(LED_OutputBuffer_Pointer + 16 * 3 + i * 3 + 1) >> ChannelNumber) & (1 << 0)) != ((B >> i) & (1 << 0))?(1 << ChannelNumber):0x00;
 	}
 }
 
-static void GPIO_Led_Seg(void)
+static void WS2812B_GPIO_Led_Seg(void)
 {
 	LED_Strip_AHB_Cmd(LED_Strip_AHB, ENABLE);
 
@@ -64,7 +64,7 @@ static void GPIO_Led_Seg(void)
 	LED_Strip_Port->BSRRH =  LED_Seg_0_Pin | LED_Seg_1_Pin | LED_Seg_2_Pin | LED_Seg_3_Pin | LED_Seg_4_Pin | LED_Seg_5_Pin | LED_Seg_6_Pin | LED_Seg_7_Pin;
 }
 
-static void DMA_Transmit_Burst(void)
+static void WS2812B_DMA_Transmit_Burst(void)
 {
 	DMA_Cmd(DMA_Transmit_Burst_Str, DISABLE);
 	DMA_DeInit(DMA_Transmit_Burst_Str);
@@ -101,21 +101,7 @@ static void DMA_Transmit_Burst(void)
 	DMA_Cmd(DMA_Transmit_Burst_Str, ENABLE);
 }
 
-void DMA_Transmit_Burst_IRQHandler(void)
-{
-	if((((DMA_Transmit_Burst_DMA->DMA_Transmit_Burst_IRQ_Reg & (uint32_t)0x0F7D0F7D) & DMA_Transmit_Burst_TC_Flag) != (uint32_t)RESET) && ((DMA_Transmit_Burst_Str->CR & DMA_IT_TC) != (uint32_t)RESET)) //is interrupt && is enabled interrupt
-	{
-		DMA_Transmit_Burst_Str->CR &= (uint32_t)~DMA_SxCR_EN;//disable DMA
-		TIM_Transmit_Burst_TIM->CR1 &= (uint16_t)~TIM_CR1_CEN;//disable TIM
-
-		DMA_Transmit_Burst_Str->M0AR = (uint32_t)&LED_OutputBuffer;
-		DMA_Transmit_Burst_Str->NDTR = (uint16_t)LED_BUFFER_SIZE;
-
-		DMA_Transmit_Burst_DMA->DMA_Transmit_Burst_Clear_Flag_Reg = (uint32_t)(DMA_Transmit_Burst_TC_Flag & (uint32_t)0x0F7D0F7D);//reset pending bit
-	}
-}
-
-static void TIM_Transmit_Burst(void)
+static void WS2812B_TIM_Transmit_Burst(void)
 {
 	TIM_Transmit_Burst_APB_Cmd(TIM_Transmit_Burst_APB, ENABLE);
 
@@ -133,19 +119,7 @@ static void TIM_Transmit_Burst(void)
 	TIM_Cmd(TIM_Transmit_Burst_TIM, ENABLE);
 }
 
-void TIM_LED_Refresh_IRQHandler(void)
-{
-	if(((TIM_LED_Refresh_TIM->SR & TIM_IT_Update) != (uint16_t)RESET) && ((TIM_LED_Refresh_TIM->DIER & TIM_IT_Update) != (uint16_t)RESET))//is interrupt flag && is interrupt enabled
-	{
-		TIM_LED_Refresh_TIM->SR = (uint16_t)~TIM_IT_Update;//reset pending bit
-
-		DMA_Transmit_Burst_Str->CR |= (uint32_t)DMA_SxCR_EN;//enable DMA
-		TIM_Transmit_Burst_TIM->CR1 |= TIM_CR1_CEN;//enable TIM
-
-	}
-}
-
-static void TIM_LED_Refresh(void)
+static void WS2812B_TIM_LED_Refresh(void)
 {
 	TIM_LED_Refresh_APB_Cmd(TIM_LED_Refresh_APB, ENABLE);
 
@@ -172,5 +146,30 @@ static void TIM_LED_Refresh(void)
 	TIM_Cmd(TIM_LED_Refresh_TIM, ENABLE);
 }
 
+void DMA_Transmit_Burst_IRQHandler(void)
+{
+	if((((DMA_Transmit_Burst_DMA->DMA_Transmit_Burst_IRQ_Reg & (uint32_t)0x0F7D0F7D) & DMA_Transmit_Burst_TC_Flag) != (uint32_t)RESET) && ((DMA_Transmit_Burst_Str->CR & DMA_IT_TC) != (uint32_t)RESET)) //is interrupt && is enabled interrupt
+	{
+		DMA_Transmit_Burst_Str->CR &= (uint32_t)~DMA_SxCR_EN;//disable DMA
+		TIM_Transmit_Burst_TIM->CR1 &= (uint16_t)~TIM_CR1_CEN;//disable TIM
+
+		DMA_Transmit_Burst_Str->M0AR = (uint32_t)&LED_OutputBuffer;
+		DMA_Transmit_Burst_Str->NDTR = (uint16_t)LED_BUFFER_SIZE;
+
+		DMA_Transmit_Burst_DMA->DMA_Transmit_Burst_Clear_Flag_Reg = (uint32_t)(DMA_Transmit_Burst_TC_Flag & (uint32_t)0x0F7D0F7D);//reset pending bit
+	}
+}
+
+void TIM_LED_Refresh_IRQHandler(void)
+{
+	if(((TIM_LED_Refresh_TIM->SR & TIM_IT_Update) != (uint16_t)RESET) && ((TIM_LED_Refresh_TIM->DIER & TIM_IT_Update) != (uint16_t)RESET))//is interrupt flag && is interrupt enabled
+	{
+		TIM_LED_Refresh_TIM->SR = (uint16_t)~TIM_IT_Update;//reset pending bit
+
+		DMA_Transmit_Burst_Str->CR |= (uint32_t)DMA_SxCR_EN;//enable DMA
+		TIM_Transmit_Burst_TIM->CR1 |= TIM_CR1_CEN;//enable TIM
+
+	}
+}
 
 

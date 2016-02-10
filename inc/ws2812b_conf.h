@@ -8,7 +8,7 @@
 #ifndef WS2812B_CONF_H_
 #define WS2812B_CONF_H_
 
-#define LED_COUNT_IN_SEGMENT 		200
+#define LED_COUNT_IN_SEGMENT 					200
 
 #define LED_Strip_Port							GPIOA
 #define LED_Strip_AHB							RCC_AHB1Periph_GPIOA
@@ -25,7 +25,6 @@
 #define TIM_Transmit_Burst_TIM					TIM1
 #define TIM_Transmit_Burst_APB					RCC_APB2Periph_TIM1
 #define TIM_Transmit_Burst_APB_Cmd				RCC_APB2PeriphClockCmd
-#define TIM_Transmit_Burst_Clk					(SystemCoreClock)
 
 #define DMA_Transmit_Burst_DMA					DMA2
 #define DMA_Transmit_Burst_AHB					RCC_AHB1Periph_DMA2
@@ -41,7 +40,6 @@
 #define TIM_LED_Refresh_TIM						TIM2
 #define TIM_LED_Refresh_APB						RCC_APB1Periph_TIM2
 #define TIM_LED_Refresh_APB_Cmd					RCC_APB1PeriphClockCmd
-#define TIM_LED_Refresh_Clk						(SystemCoreClock/2)
 #define TIM_LED_Refresh_IRQn					TIM2_IRQn
 #define TIM_LED_Refresh_IRQHandler				TIM2_IRQHandler
 
