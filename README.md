@@ -20,7 +20,7 @@ Provide longest strip length in *ws2812b_conf.h*
 ```
 #define LED_COUNT_IN_SEGMENT 					200
 ```
-here you cal also change an output port for you WS2812B strip. Initialize and use:
+here you can also change an output port for your WS2812B strip. Code below shows how to initialize and use the library:
 ```
 #include "ws2812b.h"
 
