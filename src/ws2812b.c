@@ -105,7 +105,7 @@ static void WS2812B_TIM_Transmit_Burst(void)
 {
 	TIM_Transmit_Burst_APB_Cmd(TIM_Transmit_Burst_APB, ENABLE);
 
-	TIM_TimeBaseStructure.TIM_Period = 68; // 68 / (168 MHz) = 0.4048 µs  (microseconds)
+	TIM_TimeBaseStructure.TIM_Period = 67; // (67+1) / (168 MHz) = 0.4048 µs  (microseconds)
 	TIM_TimeBaseStructure.TIM_Prescaler = 0;
 	TIM_TimeBaseStructure.TIM_ClockDivision = 0;
 	TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
@@ -125,7 +125,7 @@ static void WS2812B_TIM_LED_Refresh(void)
 
 	TIM_TimeBaseStructure.TIM_ClockDivision = 0;
 	TIM_TimeBaseStructure.TIM_Prescaler = 3359; // (84MHz) / 25kHz - 1 = 3359
-	TIM_TimeBaseStructure.TIM_Period = 250; // 250 / 25 kHz = 10 ms  (refresh 100Hz)
+	TIM_TimeBaseStructure.TIM_Period = 249; // (249+1) / 25 kHz = 10 ms  (refresh 100Hz)
 	TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
 
 	TIM_TimeBaseInit(TIM_LED_Refresh_TIM, &TIM_TimeBaseStructure);
