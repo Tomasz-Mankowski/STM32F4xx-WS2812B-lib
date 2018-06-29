@@ -10,9 +10,9 @@ and includes only one command for particular LED settings.
 
 The library is **based on DMA**, which transfers LED colour data **directly into ODR** register of the GPIO.
 Half of the GPIO peripheral is used (pins 0 to 7). Data is bursted via DMA on TIM1 Update trigger.
-It is important for bit-rate period to be about 400 ms, as the WS2812B interface is time dependent. Data transfer is triggered by TIM2 with frequency of 100Hz. This provides possibility to alter LED settings at any time, even in the main program loop.
+It is important for bit-rate period to be about 400 ns, as the WS2812B interface is time dependent. Data transfer is triggered by TIM2 with frequency of 100Hz. This provides possibility to alter LED settings at any time, even in the main program loop.
 You can change refresh rate frequency, but bare in mind that it should depend on how many LEDs are there in the longest strip.
-Minimum refresh period is 404ms\*72\*LED_COUNT_IN_SEGMENT+50us. Timers period and prescalers are calculated for 168MHz SystemCoreClock, you should alter this values in an appropriate way.
+Minimum refresh period is 404ns\*72\*LED_COUNT_IN_SEGMENT+50us. Timers period and prescalers are calculated for 168MHz SystemCoreClock, you should alter this values in an appropriate way.
 
 ## Usage
 
